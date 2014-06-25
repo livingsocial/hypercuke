@@ -7,10 +7,10 @@ Gem::Specification.new do |spec|
   spec.name          = "hypercuke"
   spec.version       = Hypercuke::VERSION
   spec.authors       = ["Sam Livingston-Gray"]
-  spec.email         = ["TODO: Write your email address"]
-  spec.summary       = %q{TODO: Write a short summary. Required.}
-  spec.description   = %q{TODO: Write a longer description. Optional.}
-  spec.homepage      = ""
+  spec.email         = ["sam.livingstongray@livingsocial.com"]
+  spec.summary       = %q{Run Cucumber scenarios at multiple layers of your application.}
+  spec.description   = %q{Hypercuke helps you use Cucumber to do BDD at multiple layers of your application, and gently nudges you into writing your scenarios in high-level terms that your users can understand.}
+  spec.homepage      = "https://github.com/livingsocial/hypercuke"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
