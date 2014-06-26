@@ -50,7 +50,7 @@ More importantly, Cucumber has some long-term pitfalls:
 ### Why Hypercuke?
 
 Hypercuke's core idea is a clever way of using Cucumber tags.  By
-swapping out different drivers for your step definitions, you can write
+swapping out different adapters for your step definitions, you can write
 a scenario once, tag it appropriately, and then execute that scenario to
 test any or all of:
 
@@ -93,7 +93,7 @@ Hypercuke directly addresses each of the pain points described above:
   reusable step definitions.  Inside the regular-expression-plus-block
   that Cucumber gives you, you write the bare minimum amount of code you
   need to translate from Gherkin into a Ruby message, and then you send
-  that message to a step driver that does the work.  Step drivers are
+  that message to a step adapter that does the work.  Step adapters are
   Ruby objects, which means you can use all of your Ruby fu to keep your
   code organized.
 

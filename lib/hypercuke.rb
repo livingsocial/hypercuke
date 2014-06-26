@@ -1,13 +1,13 @@
 require "hypercuke/version"
-require 'hypercuke/step_driver'
-require 'hypercuke/step_drivers'
-require 'hypercuke/driver_definition'
+require 'hypercuke/step_adapter'
+require 'hypercuke/step_adapters'
+require 'hypercuke/adapter_definition'
 
 module Hypercuke
   def self.reset!
     layers.clear
     topics.clear
-    StepDrivers.clear
+    StepAdapters.clear
   end
 
   # NOTE: keep an eye on duplication between .layers and .topics

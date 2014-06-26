@@ -1,22 +1,23 @@
 require 'spec_helper'
 
-describe "driver definition API" do
+describe "step adapter definition API" do
   subject { Hypercuke }
 
   # NAMING THINGS
   #
+  # Top-level object available as #driver: Step Driver
   # Area of domain: Topic
   # Layer of application: Layer
-  # Intersection of the two:  Step Driver
-  # Name of generated step driver: Hypercuke::StepDrivers::<Topic>::<Layer>
+  # Intersection of the two:  StepAdapter
+  # Name of generated step adapter: Hypercuke::StepAdapters::<Topic>::<Layer>
   #
   #     L               T O P I C S
   #     A |       | Cheese     | Wine | Bread |
-  #     Y | Core  | SD*        | SD*  | SD*   |
-  #     E | Model | SD*        | SD*  | SD*   |
-  #     R | UI    | SD*        | SD*  | SD*   |
+  #     Y | Core  | SA*        | SA*  | SA*   |
+  #     E | Model | SA*        | SA*  | SA*   |
+  #     R | UI    | SA*        | SA*  | SA*   |
   #     S
-  #           * SD = StepDriver
+  #           * SA = StepAdapter
 
   context "when empty" do
     before do
@@ -30,12 +31,12 @@ describe "driver definition API" do
     it "has no topics when it starts" do
       expect( subject.topics ).to be_empty
     end
-    it "has no step drivers when it starts" do
-      expect( subject::StepDrivers.constants ).to be_empty
+    it "has no step adapters when it starts" do
+      expect( subject::StepAdapters.constants ).to be_empty
     end
   end
 
-  context "with a single driver in a single layer" do
+  context "with a single adapter in a single layer" do
     before do
       subject.topic :cheese do
         layer :core do
@@ -49,7 +50,7 @@ describe "driver definition API" do
       subject.reset!
     end
 
-    let(:sd_class) { subject.step_driver_class( :cheese, :core ) }
+    let(:sd_class) { subject.step_adapter_class( :cheese, :core ) }
 
     it "defines a cheese topic" do
       expect( subject.topics ).to eq( [:cheese] )
@@ -59,13 +60,13 @@ describe "driver definition API" do
       expect( subject.layers ).to eq( [:core] )
     end
 
-    it "defines a step driver class for the cheese/core combo" do
+    it "defines a step adapter class for the cheese/core combo" do
       expect( sd_class ).to_not be_nil
-      expect( sd_class.superclass ).to be( Hypercuke::StepDriver )
+      expect( sd_class.superclass ).to be( Hypercuke::StepAdapter )
       expect( sd_class.instance_methods(false) ).to eq( [ :select_variety ] )
     end
 
-    it "allows the step driver to be reopened" do
+    it "allows the step adapter to be reopened" do
       subject.topic :cheese do
         layer :core do
           def pair_with(wine)
@@ -77,12 +78,12 @@ describe "driver definition API" do
       expect( sd_class.instance_methods(false).sort ).to eq( [ :select_variety, :pair_with ].sort )
     end
 
-    it "gives the step driver class a reasonable name" do
-      expect( sd_class.name ).to eq( "Hypercuke::StepDrivers::Cheese::Core" )
+    it "gives the step adapter class a reasonable name" do
+      expect( sd_class.name ).to eq( "Hypercuke::StepAdapters::Cheese::Core" )
     end
   end
 
-  context "with two drivers and three layers" do
+  context "with two topics and three layers" do
     before do
       subject.topic :wibble do
         layer :spam  do ; def wibble ; "wibble spam"  ; end ; end
@@ -106,26 +107,26 @@ describe "driver definition API" do
       expect( subject.layers ).to eq( [:spam, :eggs, :bacon] )
     end
 
-    it "defines step driver classes with reasonable class names" do
-      expect( Hypercuke::StepDrivers::Wibble::Spam .superclass ).to be( Hypercuke::StepDriver )
-      expect( Hypercuke::StepDrivers::Wibble::Eggs .superclass ).to be( Hypercuke::StepDriver )
-      expect( Hypercuke::StepDrivers::Wibble::Bacon.superclass ).to be( Hypercuke::StepDriver )
+    it "defines step adapter classes with reasonable class names" do
+      expect( Hypercuke::StepAdapters::Wibble::Spam .superclass ).to be( Hypercuke::StepAdapter )
+      expect( Hypercuke::StepAdapters::Wibble::Eggs .superclass ).to be( Hypercuke::StepAdapter )
+      expect( Hypercuke::StepAdapters::Wibble::Bacon.superclass ).to be( Hypercuke::StepAdapter )
 
-      expect( Hypercuke::StepDrivers::Yak::Spam .superclass ).to be( Hypercuke::StepDriver )
-      expect( Hypercuke::StepDrivers::Yak::Eggs .superclass ).to be( Hypercuke::StepDriver )
-      expect{ Hypercuke::StepDrivers::Yak::Bacon }.to raise_error(NameError)
+      expect( Hypercuke::StepAdapters::Yak::Spam .superclass ).to be( Hypercuke::StepAdapter )
+      expect( Hypercuke::StepAdapters::Yak::Eggs .superclass ).to be( Hypercuke::StepAdapter )
+      expect{ Hypercuke::StepAdapters::Yak::Bacon }.to raise_error(NameError)
     end
 
-    describe "step driver instantiation" do
-      it "can create a step driver that was defined" do
-        driver_klass = Hypercuke.step_driver_class( :wibble, :spam )
-        expect( driver_klass ).to be Hypercuke::StepDrivers::Wibble::Spam
-        driver = driver_klass.new
-        expect( driver.wibble ).to eq("wibble spam")
+    describe "step adapter instantiation" do
+      it "can create a step adapter that was defined" do
+        adapter_klass = Hypercuke.step_adapter_class( :wibble, :spam )
+        expect( adapter_klass ).to be Hypercuke::StepAdapters::Wibble::Spam
+        adapter = adapter_klass.new
+        expect( adapter.wibble ).to eq("wibble spam")
       end
 
-      it "explodes when asked for a step driver that was not defined" do
-        expect { Hypercuke.step_driver_class( :yak, :bacon ) }.to raise_error( NameError )
+      it "explodes when asked for a step adapter that was not defined" do
+        expect { Hypercuke.step_adapter_class( :yak, :bacon ) }.to raise_error( NameError )
       end
     end
   end

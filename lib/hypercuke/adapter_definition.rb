@@ -1,10 +1,10 @@
 module Hypercuke
-  # Entry point for the driver definition API
+  # Entry point for the adapter definition API
   def self.topic(topic_name, &block)
-    DriverDefinition.topic topic_name, &block
+    AdapterDefinition.topic topic_name, &block
   end
 
-  module DriverDefinition
+  module AdapterDefinition
     def self.topic(topic_name, &block)
       Hypercuke.name_topic topic_name
       tb = TopicBuilder.new(topic_name)
@@ -18,10 +18,10 @@ module Hypercuke
       end
 
       # I know the name *says* "layer", but what it *means* is that we
-      # should define a step driver for that layer.
+      # should define a step adapter for that layer.
       def layer(layer_name, &block)
         Hypercuke.name_layer layer_name
-        klass = Hypercuke::StepDrivers.let_there_be( topic_name, layer_name )
+        klass = Hypercuke::StepAdapters.let_there_be( topic_name, layer_name )
         klass.module_eval &block if block_given?
       end
     end
