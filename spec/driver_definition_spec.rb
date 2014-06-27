@@ -121,7 +121,8 @@ describe "step adapter definition API" do
       it "can create a step adapter that was defined" do
         adapter_klass = Hypercuke.step_adapter_class( :wibble, :spam )
         expect( adapter_klass ).to be Hypercuke::StepAdapters::Wibble::Spam
-        adapter = adapter_klass.new
+
+        adapter = adapter_klass.new( :fake_context )
         expect( adapter.wibble ).to eq("wibble spam")
       end
 

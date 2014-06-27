@@ -1,7 +1,7 @@
 module Hypercuke
   # I am the superclass for all of the generated step adapters.
   class StepAdapter
-    def initialize(context = nil) # TODO: require context!
+    def initialize(context)
       @context = context
     end
 
