@@ -1,4 +1,4 @@
-require "hypercuke/version"
+require 'hypercuke/version'
 require 'hypercuke/step_adapter'
 require 'hypercuke/step_adapters'
 require 'hypercuke/adapter_definition'
