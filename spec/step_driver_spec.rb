@@ -57,4 +57,17 @@ describe Hypercuke::StepDriver do
 
   end
 
+  describe "context management" do
+    let(:sd_context) { step_driver.send(:__context__) }
+
+    specify "step driver has a context" do
+      expect( sd_context ).to be_kind_of( Hypercuke::Context )
+    end
+
+    specify "step driver passes its context to any step adapter it creates" do
+      step_adapter_context = step_driver.wibble.__send__(:context)
+      expect( step_adapter_context ).to be( sd_context )
+    end
+  end
+
 end

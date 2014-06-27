@@ -27,7 +27,7 @@ module Hypercuke
         __step_adapters__[key] ||=
           begin
             klass = Hypercuke.step_adapter_class(*key)
-            klass.new
+            klass.new(__context__)
           end
       end
 
@@ -41,6 +41,10 @@ module Hypercuke
     end
 
     private
+
+    def __context__
+      @__context__ ||= Hypercuke::Context.new
+    end
 
     def __step_adapters__
       @__step_adapters__ ||= {}
