@@ -77,4 +77,31 @@ describe Hypercuke::StepDriver do
     end
   end
 
+  describe "inter-adapter dependencies" do
+    before do
+      Hypercuke.reset!
+      Hypercuke.topic :bikeshed do
+        layer :distraction do
+          def color ; "blue" ; end
+        end
+        layer :planet_ruby do
+          def color ; "ruby red" ; end # HINT: the herring is red, too...
+        end
+      end
+      Hypercuke.topic :yak do
+        layer :distraction do
+          def bikeshed_color
+            step_driver.bikeshed.color
+          end
+        end
+      end
+    end
+
+    let(:step_driver) { described_class.new(:distraction) }
+
+    specify "step adapters within the same layer may access one another through the step driver" do
+      expect( step_driver.yak.bikeshed_color ).to eq( "blue" )
+    end
+  end
+
 end
