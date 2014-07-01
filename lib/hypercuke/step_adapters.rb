@@ -26,11 +26,23 @@ module Hypercuke
   module StepAdapters
     # Turn [ :widgets, :core ] into self::Widgets::Core
     def self.fetch(topic_name, layer_name)
-      topic_module = const_get(camelize(topic_name))
-      topic_module.const_get(camelize(layer_name))
+      topic_module = fetch_topic_module(topic_name)
+      fetch_step_adapter(topic_module, layer_name)
     end
 
     private
+
+    def self.fetch_topic_module(topic_name)
+      const_get(camelize(topic_name))
+    rescue => e
+      raise Hypercuke::TopicNotDefinedError.wrap(e)
+    end
+
+    def self.fetch_step_adapter(topic, layer_name)
+      topic.const_get(camelize(layer_name))
+    rescue => e
+      raise Hypercuke::StepAdapterNotDefinedError.wrap(e)
+    end
 
     def self.camelize(name)
       name.to_s.split('_').map(&:capitalize).join

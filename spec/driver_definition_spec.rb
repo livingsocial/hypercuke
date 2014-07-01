@@ -116,19 +116,5 @@ describe "step adapter definition API" do
       expect( Hypercuke::StepAdapters::Yak::Eggs .superclass ).to be( Hypercuke::StepAdapter )
       expect{ Hypercuke::StepAdapters::Yak::Bacon }.to raise_error(NameError)
     end
-
-    describe "step adapter instantiation" do
-      it "can create a step adapter that was defined" do
-        adapter_klass = Hypercuke.step_adapter_class( :wibble, :spam )
-        expect( adapter_klass ).to be Hypercuke::StepAdapters::Wibble::Spam
-
-        adapter = adapter_klass.new( :fake_context )
-        expect( adapter.wibble ).to eq("wibble spam")
-      end
-
-      it "explodes when asked for a step adapter that was not defined" do
-        expect { Hypercuke.step_adapter_class( :yak, :bacon ) }.to raise_error( NameError )
-      end
-    end
   end
 end

@@ -21,7 +21,6 @@ describe Hypercuke::StepDriver do
   subject(:step_driver) { described_class.new(:spam) }
 
   describe "step adapter retrieval" do
-
     it "can be told what the current layer name is" do
       step_driver = described_class.new( :spam )
       expect( step_driver.layer_name ).to eq( :spam )
@@ -32,14 +31,22 @@ describe Hypercuke::StepDriver do
       expect( step_driver.yak.shave ).to eq( "s*MOO*th spam" )
     end
 
+    it "explodes when not given a topic name" do
+      expect { described_class.new }.to raise_error( ArgumentError ) # because arity mismatch
+
+      message = /topic name is required/i
+      expect { described_class.new(nil) }.to raise_error( ArgumentError, message )
+      expect { described_class.new("")  }.to raise_error( ArgumentError, message )
+    end
+
     it "explodes when asked for a topic that isn't defined" do
-      expect{ step_driver.heffalump }.to raise_error( NameError )
+      expect{ step_driver.heffalump }.to raise_error( Hypercuke::TopicNotDefinedError, /topic not defined/i )
     end
 
     it "explodes when asked for a step adapter that isn't defined at the current layer" do
       step_driver.layer_name = :bacon
       expect( step_driver.wibble ).to be_kind_of( Hypercuke::StepAdapters::Wibble::Bacon )
-      expect{ step_driver.yak }.to raise_error( NameError )
+      expect{ step_driver.yak }.to raise_error( Hypercuke::StepAdapterNotDefinedError, /step adapter not defined/i )
     end
 
     it "can change the current layer name" do

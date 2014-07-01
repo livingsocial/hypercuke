@@ -1,5 +1,6 @@
 require 'hypercuke/version'
 require 'hypercuke/context'
+require 'hypercuke/exceptions'
 require 'hypercuke/step_driver'
 require 'hypercuke/step_adapter'
 require 'hypercuke/step_adapters'

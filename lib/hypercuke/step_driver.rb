@@ -12,7 +12,10 @@ module Hypercuke
   class StepDriver
     attr_accessor :layer_name
     def initialize(layer_name)
-      self.layer_name = layer_name
+      if layer_name.nil? || layer_name =~ /^\s*$/
+        fail ArgumentError, "Topic name is required"
+      end
+      self.layer_name = layer_name.to_sym
     end
 
     def method_missing(method, *_O) # No arguments for you, Mister Bond! *adjusts monocle*
@@ -27,7 +30,7 @@ module Hypercuke
         __step_adapters__[key] ||=
           begin
             klass = Hypercuke.step_adapter_class(*key)
-            klass.new(__context__)
+            klass.new(__context__, self)
           end
       end
 
