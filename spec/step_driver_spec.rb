@@ -40,13 +40,18 @@ describe Hypercuke::StepDriver do
     end
 
     it "explodes when asked for a topic that isn't defined" do
-      expect{ step_driver.heffalump }.to raise_error( Hypercuke::TopicNotDefinedError, /topic not defined/i )
+      expect{ step_driver.heffalump }.to raise_error( Hypercuke::TopicNotDefinedError, "Topic not defined: heffalump" )
+    end
+
+    it "explodes when asked for a layer that isn't defined" do
+      step_driver = described_class.new( :booOOoogus )
+      expect{ step_driver.wibble }.to raise_error( Hypercuke::LayerNotDefinedError, "Layer not defined: booOOoogus" )
     end
 
     it "explodes when asked for a step adapter that isn't defined at the current layer" do
       step_driver.layer_name = :bacon
       expect( step_driver.wibble ).to be_kind_of( Hypercuke::StepAdapters::Wibble::Bacon )
-      expect{ step_driver.yak }.to raise_error( Hypercuke::StepAdapterNotDefinedError, /step adapter not defined/i )
+      expect{ step_driver.yak }.to raise_error( Hypercuke::StepAdapterNotDefinedError, "Step adapter not defined: 'Hypercuke::StepAdapters::Yak::Bacon'" )
     end
 
     it "can change the current layer name" do

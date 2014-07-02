@@ -18,18 +18,12 @@ module Hypercuke
     end
   end
 
+  class LayerNotDefinedError < NameError
+    include Hypercuke::Error
+  end
+
   class TopicNotDefinedError < NameError
     include Hypercuke::Error
-
-    def self.translate_message(message)
-      topic_name =
-        if md = /Hypercuke::StepAdapters::(.*)/.match(message)
-          md.captures.first
-        else
-          message
-        end
-      "Topic not defined: '#{topic_name}'"
-    end
   end
 
   class StepAdapterNotDefinedError < NameError
@@ -37,7 +31,7 @@ module Hypercuke
 
     def self.translate_message(message)
       step_adapter_name = 
-        if md = /Hypercuke::StepAdapters::(.*)/.match(message)
+        if md = /(Hypercuke::StepAdapters::\S*)/.match(message)
           md.captures.first
         else
           message

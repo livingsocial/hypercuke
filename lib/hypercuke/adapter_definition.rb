@@ -21,7 +21,7 @@ module Hypercuke
       # should define a step adapter for that layer.
       def layer(layer_name, &block)
         Hypercuke.name_layer layer_name
-        klass = Hypercuke::StepAdapters.let_there_be( topic_name, layer_name )
+        klass = Hypercuke::StepAdapters.define( topic_name, layer_name )
         klass.module_eval &block if block_given?
       end
     end

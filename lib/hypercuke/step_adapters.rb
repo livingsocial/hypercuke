@@ -3,94 +3,102 @@ module Hypercuke
   # been organized in a more conversational style than most of the Ruby
   # code I write.  I hope it helps.
 
-  # Provide a namespace for step adapters.  As new step adapter classes
-  # are created (see Hypercuke::AdapterDefinition), they will be
-  # assigned to constants in this module (so that they can have
-  # human-friendly names when something goes wrong and #inspect gets
-  # called on them).
-  module StepAdapters
-    # More on this topic later.  But first...
-  end
-
+  # First things first:  the point of this entire file.
+  #
   # Should you find yourself in possession of a [topic, layer] name
   # pair, this method allows you to redeem it for VALUABLE PRIZES!  (And
   # by "valuable prizes", I mean "a reference to a step adapter class,
   # if one has already been defined.")
   #
-  # This method is but a facade...
+  # This method (on Hypercuke itself) is but a facade...
   def self.step_adapter_class(topic_name, layer_name)
-    StepAdapters.fetch(topic_name, layer_name)
+    topic_module = StepAdapters.fetch_topic_module(topic_name)
+    topic_module.fetch_step_adapter(layer_name)
   end
 
-  # ...and here's what the facade hides.
+  # We start out with a namespace for step adapters.  As new step
+  # adapter classes are created (see Hypercuke::AdapterDefinition), they
+  # will be assigned to constants in this module's namespace (so that
+  # they can have human-friendly names when something goes wrong and
+  # #inspect gets called on them).
+  #
+  # Class names will be of the form:
+  # Hypercuke::StepAdapters::<TopicName>::<LayerName>
   module StepAdapters
-    # Turn [ :widgets, :core ] into self::Widgets::Core
-    def self.fetch(topic_name, layer_name)
-      topic_module = fetch_topic_module(topic_name)
-      fetch_step_adapter(topic_module, layer_name)
-    end
+    extend self # BTW, I hate typing "self." in modules.
 
-    private
-
-    def self.fetch_topic_module(topic_name)
-      const_get(camelize(topic_name))
-    rescue => e
-      raise Hypercuke::TopicNotDefinedError.wrap(e)
-    end
-
-    def self.fetch_step_adapter(topic, layer_name)
-      topic.const_get(camelize(layer_name))
-    rescue => e
-      raise Hypercuke::StepAdapterNotDefinedError.wrap(e)
-    end
-
-    def self.camelize(name)
-      name.to_s.split('_').map(&:capitalize).join
-    end
-  end
-
-  # When testing code that defines classes and binds them to constants,
-  # it is occasionally useful to reset to a blank slate.
-  module StepAdapters
-    def self.clear
-      constants.each do |c|
-        remove_const c
+    # We'll get to what makes a topic module special is in a moment, but
+    # here's how we fetch one:
+    def fetch_topic_module(topic_name)
+      Hypercuke.validate_topic_name topic_name # might also raise TopicNotDefinedError
+      begin
+        const_get( MiniInflector.camelize(topic_name) )
+      rescue NameError => e
+        raise Hypercuke::TopicNotDefinedError.wrap(e)
       end
     end
   end
 
-  # And now we get to the really fun part:  allowing us to say "I want a
-  # step adapter for this topic/layer pair.  If it doesn't exist, go
-  # ahead and define it; if it does, just give me the same one again."
-  # (This idempotent behavior lets us reopen step adapter classes in the
-  # adapter definition API.)
-
-  # Here's the relevant bit of plumbing.  Feel free to ignore it...
-  module ConstGetWithBlock
-    def const_get(sym, inherit = true)
-      super
-    rescue NameError
-      fail unless block_given?
-      const_set sym, yield # NB: const_set returns the value
+  # So, a TopicModule is (a) a namespace for holding step adapters, and
+  # (b) a slightly specialized type of Module that knows enough to be
+  # able to fetch step adapters.
+  class TopicModule < Module
+    def fetch_step_adapter(layer_name)
+      Hypercuke.validate_layer_name layer_name # might also raise StepAdapterNotDefinedError
+      begin
+        const_get( MiniInflector.camelize(layer_name) )
+      rescue NameError => e
+        raise Hypercuke::StepAdapterNotDefinedError.wrap(e)
+      end
     end
   end
 
-  # More plumbing; this is a convenient place for putting that behavior in a module
-  # without having to call #extend on a bunch of new modules...
-  class TopicModule < Module
-    include ConstGetWithBlock
+  # Okay.  That covers fetching step adapters once they've been defined.
+  # Now let's talk about how we define new ones.
+
+  module StepAdapters
+    # Here's the entry point for the adapter definition API.  It's
+    # entirely possible that a user might want to define their step
+    # adapters in a re-entrant way (much like we've been reopening the
+    # same modules and classes in this file), so this bit of the code
+    # will either create a new step adapter, or return one that's
+    # already been defined.
+    def define(topic_name, layer_name)
+      topic_module = define_topic_module(topic_name)
+      step_adapter = topic_module.define_step_adapter( layer_name )
+    end
   end
 
-  # ...and with that out of the way, this can be relatively short.
-  module StepAdapters
-    extend ConstGetWithBlock
+  # The next two bits follow this pattern:
+  # 1) attempt to fetch the requested thing.
+  # 2) if fetch fails, define and return it.
 
-    def self.let_there_be(topic_name, layer_name)
-      # Note: there's some duplication here with .fetch (defined above).
-      # Attempting to DRY it up will probably make it worse, but it's
-      # worth keeping an eye on.
-      topic_module = const_get(camelize(topic_name)) { TopicModule.new }
-      topic_module.const_get(camelize(layer_name)) { Class.new(StepAdapter) }
+  module StepAdapters
+    def define_topic_module(topic_name)
+      fetch_topic_module(topic_name)
+    rescue Hypercuke::TopicNotDefinedError
+      const_name = MiniInflector.camelize(topic_name)
+      const_set const_name, TopicModule.new
+    end
+  end
+
+  class TopicModule < Module
+    def define_step_adapter(layer_name)
+      fetch_step_adapter(layer_name)
+    rescue Hypercuke::StepAdapterNotDefinedError
+      const_name = MiniInflector.camelize(layer_name)
+      const_set const_name, Class.new(StepAdapter)
+    end
+  end
+
+  # One final bit of business before we go: when testing code that
+  # defines classes and binds them to constants, it is occasionally
+  # useful to reset to a blank slate.
+  module StepAdapters
+    def clear
+      constants.each do |c|
+        remove_const c
+      end
     end
   end
 end
