@@ -117,4 +117,30 @@ describe "step adapter definition API" do
       expect{ Hypercuke::StepAdapters::Yak::Bacon }.to raise_error(NameError)
     end
   end
+
+  context "naming conflicts" do
+    after do
+      Hypercuke.reset!
+    end
+
+    it "works when a topic name resolves to something outside the Hypercuke namespace" do
+      Hypercuke.topic :array do
+        layer :core do
+          def metasyntactic_variables ; %w[ foo bar yak shed ] ; end
+        end
+      end
+
+      expect( Hypercuke::StepAdapters::Array::Core .superclass ).to be( Hypercuke::StepAdapter )
+    end
+
+    it "works when a layer name resolves to something outside the Hypercuke namespace" do
+      Hypercuke.topic :absurdity do
+        layer :array do
+          def metasyntactic_variables ; %w[ foo bar yak shed ] ; end
+        end
+      end
+
+      expect( Hypercuke::StepAdapters::Absurdity::Array .superclass ).to be( Hypercuke::StepAdapter )
+    end
+  end
 end

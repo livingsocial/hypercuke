@@ -30,12 +30,21 @@ module Hypercuke
     # We'll get to what makes a topic module special is in a moment, but
     # here's how we fetch one:
     def fetch_topic_module(topic_name)
+      # FIXME: cyclomatic complexity
       Hypercuke.validate_topic_name topic_name # might also raise TopicNotDefinedError
-      begin
-        const_get( MiniInflector.camelize(topic_name) )
-      rescue NameError => e
-        raise Hypercuke::TopicNotDefinedError.wrap(e)
-      end
+      validate_topic_module \
+        begin
+          const_get( MiniInflector.camelize(topic_name) )
+        rescue NameError => e
+          raise Hypercuke::TopicNotDefinedError.wrap(e)
+        end
+    end
+
+    private
+
+    def validate_topic_module(candidate)
+      return candidate if candidate.kind_of?(::Hypercuke::TopicModule)
+      fail Hypercuke::TopicNotDefinedError
     end
   end
 
@@ -44,12 +53,21 @@ module Hypercuke
   # able to fetch step adapters.
   class TopicModule < Module
     def fetch_step_adapter(layer_name)
+      # FIXME: cyclomatic complexity
       Hypercuke.validate_layer_name layer_name # might also raise StepAdapterNotDefinedError
-      begin
-        const_get( MiniInflector.camelize(layer_name) )
-      rescue NameError => e
-        raise Hypercuke::StepAdapterNotDefinedError.wrap(e)
-      end
+      validate_step_adapter \
+        begin
+          const_get( MiniInflector.camelize(layer_name) )
+        rescue NameError => e
+          raise Hypercuke::StepAdapterNotDefinedError.wrap(e)
+        end
+    end
+
+    private
+
+    def validate_step_adapter(candidate)
+      return candidate if candidate.kind_of?(Class) && candidate.ancestors.include?(::Hypercuke::StepAdapter)
+      fail Hypercuke::StepAdapterNotDefinedError
     end
   end
 
