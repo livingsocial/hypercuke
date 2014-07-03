@@ -1,4 +1,5 @@
 require 'hypercuke/version'
+require 'hypercuke/cli'
 require 'hypercuke/context'
 require 'hypercuke/exceptions'
 require 'hypercuke/mini_inflector'
