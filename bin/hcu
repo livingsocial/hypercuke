@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+
+# Make sure we can get to hypercuke on the load path
+unless $:.any? {|path| path =~ /hypercuke\/lib/ }
+  lib_path = File.expand_path( File.join( File.dirname(__FILE__), *%w[.. lib] ) )
+  $:.unshift(lib_path) 
+end
+
+require 'hypercuke'
+
+puts "hello, world!"
