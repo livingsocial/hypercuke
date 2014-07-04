@@ -6,6 +6,14 @@ unless $:.any? {|path| path =~ /hypercuke\/lib/ }
   $:.unshift(lib_path) 
 end
 
-require 'hypercuke'
+# Load the gem
+begin
+  require 'hypercuke'
+rescue LoadError
+  require 'rubygems' # worth a shot before just dying
+  require 'hypercuke'
+end
 
-puts "hello, world!"
+# Hand the Hypercuke command off to the CLI, which will parse and
+# Kernel#exec the appropriate Cuucmber command
+Hypercuke::CLI.exec ARGV, output_to: STDOUT

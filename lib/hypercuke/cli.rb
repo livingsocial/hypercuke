@@ -3,19 +3,42 @@ require 'hypercuke/cli/builder'
 
 module Hypercuke
   class CLI
-    def cucumber_command(hcu_command)
-      options = parser.call(hcu_command)
-      builder.call(options)
+    def self.exec(argv, opts = {})
+      cli = new(argv)
+
+      if out = opts[:output_to]
+        out.puts cli.cucumber_command_with_env_var
+      end
+
+      ENV['HYPERCUKE_LAYER'] = cli.layer_name
+      Kernel.exec cli.cucumber_command
+    end
+
+    def initialize(argv)
+      @argv = argv
+    end
+
+    def layer_name
+      parser.layer_name
+    end
+
+    def cucumber_command
+      builder.cucumber_command_line
+    end
+
+    def cucumber_command_with_env_var
+      "HYPERCUKE_LAYER=#{layer_name} #{cucumber_command}"
     end
 
     private
+    attr_reader :argv
 
     def parser
-      Hypercuke::CLI::Parser
+      @parser ||= Hypercuke::CLI::Parser.new(argv)
     end
 
     def builder
-      Hypercuke::CLI::Builder
+      @builder ||= Hypercuke::CLI::Builder.new(parser.options)
     end
   end
 end

@@ -3,13 +3,18 @@ module Hypercuke
 
     # I extract relevant information from a 'hcu' command line
     class Parser
-      def self.call(hcu_command)
-        new(hcu_command).parse_options
-      end
-
+      attr_reader :options
       def initialize(hcu_command)
         @tokens = tokenize(hcu_command)
+        parse_options
       end
+
+      def layer_name
+        options[:layer_name]
+      end
+
+      private
+      attr_reader :tokens
 
       def parse_options
         fail "nope" if tokens.empty?
@@ -24,17 +29,19 @@ module Hypercuke
         options
       end
 
-      private
-      attr_reader :tokens, :options
-
-      # That's 4 years of CS education right there, baby
       def tokenize(input)
-        input.split(/\s+/).compact
+        args =
+          case input
+          when Array  ; input
+          when String ; input.split(/\s+/) # That's 4 years of CS education right there, baby
+          else fail "Don't know how to parse #{input.inspect}"
+          end
+        args.compact
       end
 
       # We might get the 'hcu' command name itself; just drop it on the floor
       def ignore_hcu
-        tokens.shift if tokens.first =~ /^hcu$/i
+        tokens.shift if tokens.first =~ /\bhcu$/i
       end
 
       # This is the only required argument.
@@ -54,8 +61,8 @@ module Hypercuke
 
       def set_profile_if_present
         if profile_index = ( tokens.index('--profile') || tokens.index('-p') )
-          options[:profile_arg]  = tokens.delete_at(profile_index)
-          options[:profile_name] = tokens.delete_at(profile_index)
+          tokens.delete_at(profile_index) # don't care
+          options[:profile] = tokens.delete_at(profile_index)
         end
       end
 
