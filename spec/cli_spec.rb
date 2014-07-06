@@ -27,59 +27,78 @@ require 'spec_helper'
 =end
 
 describe Hypercuke::CLI do
-  let(:cmd_base) { 'cucumber' }
 
   def cli_for(hcu_command)
     described_class.new(hcu_command)
   end
 
-  def expect_command_line(hcu_command, expected_output)
-    argv = hcu_command.split(/\s+/)
-    actual_output = cli_for(argv).cucumber_command
+  describe "cucumber command line generation" do
+    shared_examples_for "command line builder" do |shared_example_opts|
+      let(:cmd_base) { shared_example_opts[:cmd_base] }
 
-    expect( actual_output ).to eq( expected_output ), <<-EOF
+      def expect_command_line(hcu_command, expected_output)
+        argv = hcu_command.split(/\s+/)
+        actual_output = cli_for(argv).cucumber_command
+
+        expect( actual_output ).to eq( expected_output ), <<-EOF
 Transforming command '#{hcu_command}':
 expected: #{expected_output.inspect}
-     got: #{actual_output.inspect}
-    EOF
-  end
+         got: #{actual_output.inspect}
+        EOF
+      end
 
-  describe "cucumber command line generation" do
-    it "treats the first argument as a layer name and adds the appropriate --tags flag" do
-      expect_command_line 'hcu core',  "#{cmd_base} --tags @core_ok"
-      expect_command_line 'hcu model', "#{cmd_base} --tags @model_ok"
+      it "ignores the 0th 'hcu' argument in its various forms (does this even happen?)" do
+        expect_command_line 'hcu core',     "#{cmd_base} --tags @core_ok"
+        expect_command_line 'bin/hcu core', "#{cmd_base} --tags @core_ok"
+      end
+
+      it "treats the first argument as a layer name and adds the appropriate --tags flag" do
+        expect_command_line 'hcu core',  "#{cmd_base} --tags @core_ok"
+        expect_command_line 'hcu model', "#{cmd_base} --tags @model_ok"
+      end
+
+      it "barfs if the layer name is not given" do
+        expect{ cli_for('hcu').cucumber_command }.to raise_error( "Layer name is required" )
+      end
+
+      it "treats the second argument as a mode (assuming it doesn't start with a dash)" do
+        expect_command_line 'hcu core ok',  "#{cmd_base} --tags @core_ok"
+      end
+
+      it "adds '--profile wip' when the mode is 'wip'" do
+        expect_command_line 'hcu core wip',  "#{cmd_base} --tags @core_wip --profile wip"
+      end
+
+      it "ignores most other arguments and just hands them off to Cucumber" do
+        expect_command_line 'hcu core --wibble',    "#{cmd_base} --tags @core_ok --wibble"
+        expect_command_line 'hcu core ok --wibble', "#{cmd_base} --tags @core_ok --wibble"
+      end
+
+      it "doesn't override a profile if the user explicitly specifies one (using either -p or --profile)" do
+        expect_command_line 'hcu core --profile emperor_penguin',     "#{cmd_base} --tags @core_ok --profile emperor_penguin"
+        expect_command_line 'hcu core -p emperor_penguin',            "#{cmd_base} --tags @core_ok --profile emperor_penguin"
+      end
+
+      it "doesn't override a user-specified profile, even in wip mode when it would normally use the wip profile" do
+        expect_command_line 'hcu core wip --profile emperor_penguin', "#{cmd_base} --tags @core_wip --profile emperor_penguin"
+        expect_command_line 'hcu core wip -p emperor_penguin',        "#{cmd_base} --tags @core_wip --profile emperor_penguin"
+      end
     end
 
-    it "barfs if the layer name is not given" do
-      expect{ cli_for('hcu').cucumber_command }.to raise_error( "Layer name is required" )
+    context "when Bundler IS NOT present" do
+      before do
+        allow( described_class ).to receive(:bundler_present?).and_return(false)
+      end
+
+      it_behaves_like "command line builder", cmd_base: 'cucumber'
     end
 
-    it "ignores the 'hcu' argument in its various forms (does Ruby send this?)" do
-      expect_command_line 'hcu core',     "#{cmd_base} --tags @core_ok"
-      expect_command_line 'bin/hcu core', "#{cmd_base} --tags @core_ok"
-    end
+    context "when Bundler IS present" do
+      before do
+        allow( described_class ).to receive(:bundler_present?).and_return(true)
+      end
 
-    it "treats the second argument as a mode -- assuming it doesn't start with a dash" do
-      expect_command_line 'hcu core ok',  "#{cmd_base} --tags @core_ok"
-    end
-
-    it "adds '--profile wip' when the mode is 'wip'" do
-      expect_command_line 'hcu core wip',  "#{cmd_base} --tags @core_wip --profile wip"
-    end
-
-    it "ignores most other arguments and just hands them off to Cucumber" do
-      expect_command_line 'hcu core --wibble',    "#{cmd_base} --tags @core_ok --wibble"
-      expect_command_line 'hcu core ok --wibble', "#{cmd_base} --tags @core_ok --wibble"
-    end
-
-    it "doesn't override a profile if the user explicitly specifies one (using either -p or --profile)" do
-      expect_command_line 'hcu core --profile emperor_penguin',     "#{cmd_base} --tags @core_ok --profile emperor_penguin"
-      expect_command_line 'hcu core -p emperor_penguin',            "#{cmd_base} --tags @core_ok --profile emperor_penguin"
-    end
-
-    it "doesn't override a profile if the user explicitly specifies one (using either -p or --profile), even in wip mode" do
-      expect_command_line 'hcu core wip --profile emperor_penguin', "#{cmd_base} --tags @core_wip --profile emperor_penguin"
-      expect_command_line 'hcu core wip -p emperor_penguin',        "#{cmd_base} --tags @core_wip --profile emperor_penguin"
+      it_behaves_like "command line builder", cmd_base: 'bundle exec cucumber'
     end
   end
 

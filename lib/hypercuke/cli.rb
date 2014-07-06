@@ -14,6 +14,12 @@ module Hypercuke
       Kernel.exec cli.cucumber_command
     end
 
+    # NB: .bundler_present? is not covered by tests, because I can't
+    # think of a reasonable way to test it.  PRs welcome.  :)
+    def self.bundler_present?
+      !! (`which bundle` =~ /bundle/) # parens are significant
+    end
+
     def initialize(argv)
       @argv = argv
     end
@@ -23,7 +29,7 @@ module Hypercuke
     end
 
     def cucumber_command
-      builder.cucumber_command_line
+      builder.cucumber_command_line(self.class.bundler_present?)
     end
 
     def cucumber_command_with_env_var

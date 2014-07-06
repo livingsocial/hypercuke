@@ -10,8 +10,10 @@ module Hypercuke
         build_cuke_args
       end
 
-      def cucumber_command_line
-        cuke_args.join(' ')
+      def cucumber_command_line(prepend_bundler = false)
+        cmd = prepend_bundler ? 'bundle exec ' : ''
+        cmd << cuke_args.join(' ')
+        cmd
       end
 
       private
