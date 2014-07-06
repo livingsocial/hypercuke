@@ -13,7 +13,7 @@ module Hypercuke
     attr_accessor :layer_name
     def initialize(layer_name)
       if layer_name.nil? || layer_name =~ /^\s*$/
-        fail ArgumentError, "Topic name is required"
+        fail ArgumentError, "Layer name is required"
       end
       self.layer_name = layer_name.to_sym
     end

@@ -31,10 +31,10 @@ describe Hypercuke::StepDriver do
       expect( step_driver.yak.shave ).to eq( "s*MOO*th spam" )
     end
 
-    it "explodes when not given a topic name" do
+    it "explodes when not given a layer name" do
       expect { described_class.new }.to raise_error( ArgumentError ) # because arity mismatch
 
-      message = /topic name is required/i
+      message = /layer name is required/i
       expect { described_class.new(nil) }.to raise_error( ArgumentError, message )
       expect { described_class.new("")  }.to raise_error( ArgumentError, message )
     end
