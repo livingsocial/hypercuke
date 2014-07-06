@@ -9,7 +9,9 @@ require 'hypercuke/step_adapters'
 require 'hypercuke/adapter_definition'
 
 module Hypercuke
-  def self.reset!
+  extend self
+
+  def reset!
     layers.clear
     topics.clear
     StepAdapters.clear
@@ -17,14 +19,14 @@ module Hypercuke
 
   # NOTE: keep an eye on duplication between .layers and .topics
 
-  def self.layers
+  def layers
     @layers ||= []
   end
-  def self.name_layer(layer_name)
+  def name_layer(layer_name)
     name = layer_name.to_sym
     layers << name unless layers.include?(name)
   end
-  def self.validate_layer_name(layer_name)
+  def validate_layer_name(layer_name)
     name = layer_name.to_sym
     if Hypercuke.layers.include?(name)
       name
@@ -33,14 +35,14 @@ module Hypercuke
     end
   end
 
-  def self.topics
+  def topics
     @topics ||= []
   end
-  def self.name_topic(topic_name)
+  def name_topic(topic_name)
     name = topic_name.to_sym
     topics << name unless topics.include?(name)
   end
-  def self.validate_topic_name(topic_name)
+  def validate_topic_name(topic_name)
     name = topic_name.to_sym
     if Hypercuke.topics.include?(name)
       name
