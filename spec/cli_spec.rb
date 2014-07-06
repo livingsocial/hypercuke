@@ -43,7 +43,7 @@ describe Hypercuke::CLI do
         expect( actual_output ).to eq( expected_output ), <<-EOF
 Transforming command '#{hcu_command}':
 expected: #{expected_output.inspect}
-         got: #{actual_output.inspect}
+     got: #{actual_output.inspect}
         EOF
       end
 
@@ -53,35 +53,36 @@ expected: #{expected_output.inspect}
       end
 
       it "treats the first argument as a layer name and adds the appropriate --tags flag" do
-        expect_command_line 'hcu core',  "#{cmd_base} --tags @core_ok"
-        expect_command_line 'hcu model', "#{cmd_base} --tags @model_ok"
+        expect_command_line 'core',  "#{cmd_base} --tags @core_ok"
+        expect_command_line 'model', "#{cmd_base} --tags @model_ok"
       end
 
       it "barfs if the layer name is not given" do
         expect{ cli_for('hcu').cucumber_command }.to raise_error( "Layer name is required" )
+        expect{ cli_for('').cucumber_command }.to raise_error( "Layer name is required" )
       end
 
       it "treats the second argument as a mode (assuming it doesn't start with a dash)" do
-        expect_command_line 'hcu core ok',  "#{cmd_base} --tags @core_ok"
+        expect_command_line 'core ok',  "#{cmd_base} --tags @core_ok"
       end
 
       it "adds '--profile wip' when the mode is 'wip'" do
-        expect_command_line 'hcu core wip',  "#{cmd_base} --tags @core_wip --profile wip"
+        expect_command_line 'core wip',  "#{cmd_base} --tags @core_wip --profile wip"
       end
 
       it "ignores most other arguments and just hands them off to Cucumber" do
-        expect_command_line 'hcu core --wibble',    "#{cmd_base} --tags @core_ok --wibble"
-        expect_command_line 'hcu core ok --wibble', "#{cmd_base} --tags @core_ok --wibble"
+        expect_command_line 'core --wibble',    "#{cmd_base} --tags @core_ok --wibble"
+        expect_command_line 'core ok --wibble', "#{cmd_base} --tags @core_ok --wibble"
       end
 
       it "doesn't override a profile if the user explicitly specifies one (using either -p or --profile)" do
-        expect_command_line 'hcu core --profile emperor_penguin',     "#{cmd_base} --tags @core_ok --profile emperor_penguin"
-        expect_command_line 'hcu core -p emperor_penguin',            "#{cmd_base} --tags @core_ok --profile emperor_penguin"
+        expect_command_line 'core --dingbat --profile emperor_penguin',     "#{cmd_base} --tags @core_ok --profile emperor_penguin --dingbat"
+        expect_command_line 'core --dingbat -p emperor_penguin',            "#{cmd_base} --tags @core_ok --profile emperor_penguin --dingbat"
       end
 
       it "doesn't override a user-specified profile, even in wip mode when it would normally use the wip profile" do
-        expect_command_line 'hcu core wip --profile emperor_penguin', "#{cmd_base} --tags @core_wip --profile emperor_penguin"
-        expect_command_line 'hcu core wip -p emperor_penguin',        "#{cmd_base} --tags @core_wip --profile emperor_penguin"
+        expect_command_line 'core wip --profile emperor_penguin', "#{cmd_base} --tags @core_wip --profile emperor_penguin"
+        expect_command_line 'core wip -p emperor_penguin',        "#{cmd_base} --tags @core_wip --profile emperor_penguin"
       end
     end
 

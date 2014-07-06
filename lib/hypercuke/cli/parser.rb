@@ -17,7 +17,6 @@ module Hypercuke
       attr_reader :tokens
 
       def parse_options
-        fail "nope" if tokens.empty?
         @options = Hash.new
 
         ignore_hcu
