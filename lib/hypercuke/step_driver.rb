@@ -5,17 +5,13 @@ module Hypercuke
   # will be made available to Cucumber::World via the #step_driver
   # method.  
   #
-  # The StepDriver should be created with a layer name.  It will
-  # interpret any message sent to it as a topic name, combine that with
-  # the layer name it already has, and use that to instantitate a
-  # StepAdapter for the appropriate topic/layer combo.
+  # The StepDriver will interpret any message sent to it as a topic
+  # name, combine that with the current_layer name from Hypercuke, and
+  # use that to instantitate a StepAdapter for the appropriate
+  # topic/layer combo.
   class StepDriver
-    attr_accessor :layer_name
-    def initialize(layer_name)
-      if layer_name.nil? || layer_name =~ /^\s*$/
-        fail ArgumentError, "Layer name is required"
-      end
-      self.layer_name = layer_name.to_sym
+    def layer_name
+      Hypercuke.current_layer
     end
 
     def method_missing(method, *_O) # No arguments for you, Mister Bond! *adjusts monocle*

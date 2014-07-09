@@ -12,18 +12,20 @@ describe Hypercuke::StepDriver do
       layer :eggs  do ; def shave ; "s*MOO*th eggs"  ; end ; end
       # Is yak bacon even a thing?  ...wait, don't answer that.
     end
+    Hypercuke.current_layer = :spam
   end
 
   after do
     Hypercuke.reset!
   end
 
-  subject(:step_driver) { described_class.new(:spam) }
+  subject(:step_driver) { described_class.new }
 
   describe "step adapter retrieval" do
-    it "can be told what the current layer name is" do
-      step_driver = described_class.new( :spam )
-      expect( step_driver.layer_name ).to eq( :spam )
+
+    it "asks Hypercuke for the current layer" do
+      Hypercuke.current_layer = :bacon
+      expect( step_driver.layer_name ).to eq( :bacon )
     end
 
     it "can return a step adapter for each layer" do
@@ -31,37 +33,24 @@ describe Hypercuke::StepDriver do
       expect( step_driver.yak.shave ).to eq( "s*MOO*th spam" )
     end
 
-    it "explodes when not given a layer name" do
-      expect { described_class.new }.to raise_error( ArgumentError ) # because arity mismatch
-
-      message = /layer name is required/i
-      expect { described_class.new(nil) }.to raise_error( ArgumentError, message )
-      expect { described_class.new("")  }.to raise_error( ArgumentError, message )
-    end
-
     it "explodes when asked for a topic that isn't defined" do
       expect{ step_driver.heffalump }.to raise_error( Hypercuke::TopicNotDefinedError, "Topic not defined: heffalump" )
     end
 
     it "explodes when asked for a layer that isn't defined" do
-      step_driver = described_class.new( :booOOoogus )
+      Hypercuke.current_layer = :booOOoogus
       expect{ step_driver.wibble }.to raise_error( Hypercuke::LayerNotDefinedError, "Layer not defined: booOOoogus" )
     end
 
     it "explodes when asked for a step adapter that isn't defined at the current layer" do
-      step_driver.layer_name = :bacon
+      Hypercuke.current_layer = :bacon
       expect( step_driver.wibble ).to be_kind_of( Hypercuke::StepAdapters::Wibble::Bacon )
       expect{ step_driver.yak }.to raise_error( Hypercuke::StepAdapterNotDefinedError, "Step adapter not defined: 'Hypercuke::StepAdapters::Yak::Bacon'" )
     end
 
-    it "can change the current layer name" do
-      step_driver.layer_name = :eggs
-      expect( step_driver.layer_name ).to eq( :eggs )
-    end
-
     it "can return a step adapter for each layer (even when the layer is changed)" do
       [ :spam, :eggs, :bacon ].each do |layer|
-        step_driver.layer_name = layer
+        Hypercuke.current_layer = layer
         expect( step_driver.wibble.wibble ).to eq( "wibble #{layer}" )
         expect( step_driver.yak.shave ).to eq( "s*MOO*th #{layer}" ) unless :bacon == layer
       end
@@ -100,9 +89,10 @@ describe Hypercuke::StepDriver do
           end
         end
       end
+      Hypercuke.current_layer = :distraction
     end
 
-    let(:step_driver) { described_class.new(:distraction) }
+    let(:step_driver) { described_class.new }
 
     specify "step adapters within the same layer may access one another through the step driver" do
       expect( step_driver.yak.bikeshed_color ).to eq( "blue" )
