@@ -10,7 +10,7 @@ module Hypercuke
         out.puts cli.cucumber_command_with_env_var
       end
 
-      ENV['HYPERCUKE_LAYER'] = cli.layer_name
+      ENV[Hypercuke::LAYER_NAME_ENV_VAR] = cli.layer_name
       Kernel.exec cli.cucumber_command
     end
 

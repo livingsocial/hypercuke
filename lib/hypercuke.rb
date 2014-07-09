@@ -9,12 +9,22 @@ require 'hypercuke/step_adapters'
 require 'hypercuke/adapter_definition'
 
 module Hypercuke
+  LAYER_NAME_ENV_VAR = 'HYPERCUKE_LAYER'
   extend self
 
   def reset!
+    @current_layer = nil
     layers.clear
     topics.clear
     StepAdapters.clear
+  end
+
+  def current_layer=(layer_name)
+    @current_layer = layer_name ? layer_name.to_sym : nil
+  end
+  def current_layer
+    layer_name = (@current_layer || ENV[LAYER_NAME_ENV_VAR])
+    layer_name && layer_name.to_sym
   end
 
   # NOTE: keep an eye on duplication between .layers and .topics
