@@ -15,5 +15,5 @@ rescue LoadError
 end
 
 # Hand the Hypercuke command off to the CLI, which will parse and
-# Kernel#exec the appropriate Cuucmber command
+# Kernel#exec the appropriate Cucumber command
 Hypercuke::CLI.exec ARGV, output_to: STDOUT
