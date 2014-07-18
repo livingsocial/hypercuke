@@ -125,7 +125,13 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Obviously I have some more writing to do, but you'll need to add this
+line somewhere in your application's Cucumber environment (this is
+usually somewhere in /features/support/):
+
+    require 'hypercuke/cucumber_integration'
+
+TODO: Write more detailed usage instructions
 
 ## Contributing
 
