@@ -28,8 +28,8 @@ require 'spec_helper'
 
 describe Hypercuke::CLI do
 
-  def cli_for(hcu_command)
-    described_class.new(hcu_command)
+  def cli_for(hcu_command, *args)
+    described_class.new(hcu_command, *args)
   end
 
   describe "cucumber command line generation" do
@@ -108,6 +108,28 @@ expected: #{expected_output.inspect}
       expect( cli_for('hcu core') .layer_name ).to eq( 'core' )
       expect( cli_for('hcu model').layer_name ).to eq( 'model' )
       expect( cli_for('hcu ui')   .layer_name ).to eq( 'ui' )
+    end
+  end
+
+  describe "#run!" do
+    let(:cli) { cli_for('fudge_ripple', output, environment, kernel) }
+    let(:output) { double('output', puts: nil) }
+    let(:kernel) { double('Kernel', exec: nil) }
+    let(:environment) { Hash.new }
+
+    it "prints the generated Cucumber command to output" do
+      expect(output).to receive(:puts).with(cli.cucumber_command_with_env_var)
+      cli.run!
+    end
+
+    it "sets an environment variable with the given layer name" do
+      cli.run!
+      expect( environment[Hypercuke::LAYER_NAME_ENV_VAR] ).to eq( 'fudge_ripple' )
+    end
+
+    it "uses exec to run the Cucumber command" do
+      expect(kernel).to receive(:exec).with(cli.cucumber_command)
+      cli.run!
     end
   end
 end
