@@ -115,20 +115,20 @@ expected: #{expected_output.inspect}
     let(:cli) { cli_for('fudge_ripple', output, environment, kernel) }
     let(:output) { double('output', puts: nil) }
     let(:kernel) { double('Kernel', exec: nil) }
-    let(:environment) { Hash.new }
+    let(:environment) { { 'foo' => 'bar' } }
 
     it "prints the generated Cucumber command to output" do
-      expect(output).to receive(:puts).with(cli.cucumber_command_with_env_var)
+      expect(output).to receive(:puts).with(cli.cucumber_command_for_display)
       cli.run!
     end
 
-    it "sets an environment variable with the given layer name" do
-      cli.run!
-      expect( environment[Hypercuke::LAYER_NAME_ENV_VAR] ).to eq( 'fudge_ripple' )
-    end
-
-    it "uses exec to run the Cucumber command" do
-      expect(kernel).to receive(:exec).with(cli.cucumber_command)
+    it "uses exec to run the Cucumber command, passing in the layer name to the environment" do
+      layer = Hypercuke::LAYER_NAME_ENV_VAR
+      expected_env = {
+        'foo' => 'bar',
+        layer => 'fudge_ripple'
+      }
+      expect(kernel).to receive(:exec).with(expected_env, cli.cucumber_command)
       cli.run!
     end
   end

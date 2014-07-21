@@ -22,9 +22,9 @@ module Hypercuke
     end
 
     def run!
-      output && output.puts(cucumber_command_with_env_var)
-      environment[Hypercuke::LAYER_NAME_ENV_VAR] = layer_name
-      kernel.exec cucumber_command
+      output && output.puts(cucumber_command_for_display)
+      new_env = environment.merge({ Hypercuke::LAYER_NAME_ENV_VAR => layer_name })
+      kernel.exec new_env, cucumber_command
     end
 
     def layer_name
@@ -35,7 +35,7 @@ module Hypercuke
       builder.cucumber_command_line(self.class.bundler_present?)
     end
 
-    def cucumber_command_with_env_var
+    def cucumber_command_for_display
       "HYPERCUKE_LAYER=#{layer_name} #{cucumber_command}"
     end
 
