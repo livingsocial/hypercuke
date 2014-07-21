@@ -23,7 +23,7 @@ module Hypercuke
 
     def run!
       output && output.puts(cucumber_command_for_display)
-      new_env = environment.merge({ Hypercuke::LAYER_NAME_ENV_VAR => layer_name })
+      new_env = environment.to_hash.merge({ Hypercuke::LAYER_NAME_ENV_VAR => layer_name })
       kernel.exec new_env, cucumber_command
     end
 
