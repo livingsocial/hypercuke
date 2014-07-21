@@ -11,7 +11,7 @@ module Hypercuke
     # NB: .bundler_present? is not covered by tests, because I can't
     # think of a reasonable way to test it.  PRs welcome.  :)
     def self.bundler_present?
-      !! (`which bundle` =~ /bundle/) # parens are significant
+      !! (`which bundle` =~ /\wbundle\w/) # parens are significant
     end
 
     def initialize(argv, output = nil, environment = ENV, kernel = Kernel)
