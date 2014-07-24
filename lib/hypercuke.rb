@@ -11,36 +11,35 @@ require 'hypercuke/adapter_definition'
 
 module Hypercuke
   LAYER_NAME_ENV_VAR = 'HYPERCUKE_LAYER'
-  extend self
 
-  def reset!
+  def self.reset!
     @current_layer = nil
     layers.clear
     topics.clear
     StepAdapters.clear
   end
 
-  def current_layer=(layer_name)
+  def self.current_layer=(layer_name)
     @current_layer = layer_name ? layer_name.to_sym : nil
   end
-  def current_layer
+  def self.current_layer
     layer_name = (@current_layer || ENV[LAYER_NAME_ENV_VAR])
     layer_name && layer_name.to_sym
   end
 
 
-  def layers
+  def self.layers
     @layers ||= NameList.new
   end
-  def layer_names
+  def self.layer_names
     layers.to_a
   end
 
 
-  def topics
+  def self.topics
     @topics ||= NameList.new
   end
-  def topic_names
+  def self.topic_names
     topics.to_a
   end
 end
