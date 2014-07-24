@@ -31,10 +31,6 @@ module Hypercuke
       names.dup
     end
 
-    def clear
-      names.clear
-    end
-    
     def empty?
       names.empty?
     end
