@@ -46,9 +46,6 @@ describe "step adapter definition API" do
         end
       end
     end
-    after do
-      subject.reset!
-    end
 
     let(:sd_class) { subject.step_adapter_class( :cheese, :core ) }
 
@@ -95,9 +92,6 @@ describe "step adapter definition API" do
         layer :eggs  do ; def shave ; "s*MOO*th eggs"  ; end ; end
       end
     end
-    after do
-      subject.reset!
-    end
 
     it "defines topic names" do
       expect( subject.topic_names ).to eq( [:wibble, :yak] )
@@ -119,10 +113,6 @@ describe "step adapter definition API" do
   end
 
   context "naming conflicts" do
-    after do
-      Hypercuke.reset!
-    end
-
     it "works when a topic name resolves to something outside the Hypercuke namespace" do
       Hypercuke.topic :array do
         layer :core do

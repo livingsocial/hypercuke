@@ -15,9 +15,6 @@ describe Hypercuke::StepDriver do
     Hypercuke.current_layer = :spam
   end
 
-  after do
-    Hypercuke.reset!
-  end
 
   subject(:step_driver) { described_class.new }
 
