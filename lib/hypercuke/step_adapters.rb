@@ -31,7 +31,9 @@ module Hypercuke
     # here's how we fetch one:
     def fetch_topic_module(topic_name)
       # FIXME: cyclomatic complexity
-      Hypercuke.validate_topic_name topic_name # might also raise TopicNotDefinedError
+      Hypercuke.topics.validate(topic_name) do
+        fail TopicNotDefinedError, "Topic not defined: #{topic_name}"
+      end
       validate_topic_module \
         begin
           const_get( MiniInflector.camelize(topic_name) )
@@ -54,7 +56,9 @@ module Hypercuke
   class TopicModule < Module
     def fetch_step_adapter(layer_name)
       # FIXME: cyclomatic complexity
-      Hypercuke.validate_layer_name layer_name # might also raise StepAdapterNotDefinedError
+      Hypercuke.layers.validate(layer_name) do
+        fail LayerNotDefinedError, "Layer not defined: #{layer_name}"
+      end
       validate_step_adapter \
         begin
           const_get( MiniInflector.camelize(layer_name) )

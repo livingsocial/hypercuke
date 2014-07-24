@@ -6,7 +6,7 @@ module Hypercuke
 
   module AdapterDefinition
     def self.topic(topic_name, &block)
-      Hypercuke.name_topic topic_name
+      Hypercuke.topics.define topic_name
       tb = TopicBuilder.new(topic_name)
       tb.instance_eval &block if block_given?
     end
@@ -20,7 +20,7 @@ module Hypercuke
       # I know the name *says* "layer", but what it *means* is that we
       # should define a step adapter for that layer.
       def layer(layer_name, &block)
-        Hypercuke.name_layer layer_name
+        Hypercuke.layers.define layer_name
         klass = Hypercuke::StepAdapters.define( topic_name, layer_name )
         klass.module_eval &block if block_given?
       end

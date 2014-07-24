@@ -53,11 +53,11 @@ describe "step adapter definition API" do
     let(:sd_class) { subject.step_adapter_class( :cheese, :core ) }
 
     it "defines a cheese topic" do
-      expect( subject.topics ).to eq( [:cheese] )
+      expect( subject.topic_names ).to eq( [:cheese] )
     end
 
     it "defines a core layer" do
-      expect( subject.layers ).to eq( [:core] )
+      expect( subject.layer_names ).to eq( [:core] )
     end
 
     it "defines a step adapter class for the cheese/core combo" do
@@ -100,11 +100,11 @@ describe "step adapter definition API" do
     end
 
     it "defines topic names" do
-      expect( subject.topics ).to eq( [:wibble, :yak] )
+      expect( subject.topic_names ).to eq( [:wibble, :yak] )
     end
 
     it "defines layer names" do
-      expect( subject.layers ).to eq( [:spam, :eggs, :bacon] )
+      expect( subject.layer_names ).to eq( [:spam, :eggs, :bacon] )
     end
 
     it "defines step adapter classes with reasonable class names" do

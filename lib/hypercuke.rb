@@ -3,6 +3,7 @@ require 'hypercuke/cli'
 require 'hypercuke/context'
 require 'hypercuke/exceptions'
 require 'hypercuke/mini_inflector'
+require 'hypercuke/name_list'
 require 'hypercuke/step_driver'
 require 'hypercuke/step_adapter'
 require 'hypercuke/step_adapters'
@@ -27,37 +28,19 @@ module Hypercuke
     layer_name && layer_name.to_sym
   end
 
-  # NOTE: keep an eye on duplication between .layers and .topics
 
   def layers
-    @layers ||= []
+    @layers ||= NameList.new
   end
-  def name_layer(layer_name)
-    name = layer_name.to_sym
-    layers << name unless layers.include?(name)
-  end
-  def validate_layer_name(layer_name)
-    name = layer_name.to_sym
-    if Hypercuke.layers.include?(name)
-      name
-    else
-      fail LayerNotDefinedError, "Layer not defined: #{name}"
-    end
+  def layer_names
+    layers.to_a
   end
 
+
   def topics
-    @topics ||= []
+    @topics ||= NameList.new
   end
-  def name_topic(topic_name)
-    name = topic_name.to_sym
-    topics << name unless topics.include?(name)
-  end
-  def validate_topic_name(topic_name)
-    name = topic_name.to_sym
-    if Hypercuke.topics.include?(name)
-      name
-    else
-      fail TopicNotDefinedError, "Topic not defined: #{name}"
-    end
+  def topic_names
+    topics.to_a
   end
 end
