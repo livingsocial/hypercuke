@@ -20,11 +20,6 @@ describe "step adapter definition API" do
   #           * SA = StepAdapter
 
   context "when empty" do
-    before do
-      subject.topic :wibble # make sure it's not empty
-      subject.reset!
-    end
-
     it "has no layers when it starts" do
       expect( subject.layers ).to be_empty
     end
