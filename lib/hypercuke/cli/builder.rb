@@ -35,9 +35,10 @@ module Hypercuke
       end
 
       def layer_tag_for_mode
-        layer = options[:layer_name]
-        mode  = options[:mode] || 'ok'
-        '@%s_%s' % [ layer, mode ]
+        layer = options.fetch(:layer_name)
+        mode  = options[:mode]
+        blank_or_ok = ->(e) { e.to_s =~ /^(\s*|ok)$/ }
+        '@' + [ layer, mode ].reject(&blank_or_ok).join('_')
       end
 
       def add_profile_unless_already_present
