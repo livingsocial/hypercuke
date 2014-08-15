@@ -31,14 +31,18 @@ module Hypercuke
       end
 
       def add_layer_tag_for_mode
-        cuke_args << "--tags #{layer_tag_for_mode}"
+        cuke_args << layer_tags_for_mode
       end
 
-      def layer_tag_for_mode
+      def layer_tags_for_mode
         layer = options.fetch(:layer_name)
-        mode  = options[:mode]
-        blank_or_ok = ->(e) { e.to_s =~ /^(\s*|ok)$/ }
-        '@' + [ layer, mode ].reject(&blank_or_ok).join('_')
+        mode  = [options[:mode].to_s.strip, 'ok'].reject {|s| s =~ /^\s*$/ }.first
+
+        if 'ok' == mode
+          "--tags @#{layer} --tags @#{layer}_ok"
+        else
+          "--tags @#{layer}_#{mode}"
+        end
       end
 
       def add_profile_unless_already_present

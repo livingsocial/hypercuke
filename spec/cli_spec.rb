@@ -48,13 +48,13 @@ expected: #{expected_output.inspect}
       end
 
       it "ignores the 0th 'hcu' argument in its various forms (does this even happen?)" do
-        expect_command_line 'hcu core',     "#{cmd_base} --tags @core"
-        expect_command_line 'bin/hcu core', "#{cmd_base} --tags @core"
+        expect_command_line 'hcu core',     "#{cmd_base} --tags @core --tags @core_ok"
+        expect_command_line 'bin/hcu core', "#{cmd_base} --tags @core --tags @core_ok"
       end
 
       it "treats the first argument as a layer name and adds the appropriate --tags flag" do
-        expect_command_line 'core',  "#{cmd_base} --tags @core"
-        expect_command_line 'model', "#{cmd_base} --tags @model"
+        expect_command_line 'core',  "#{cmd_base} --tags @core --tags @core_ok"
+        expect_command_line 'model', "#{cmd_base} --tags @model --tags @model_ok"
       end
 
       it "barfs if the layer name is not given" do
@@ -63,7 +63,7 @@ expected: #{expected_output.inspect}
       end
 
       it "treats the second argument as a mode (assuming it doesn't start with a dash)" do
-        expect_command_line 'core ok',  "#{cmd_base} --tags @core"
+        expect_command_line 'core ok',  "#{cmd_base} --tags @core --tags @core_ok"
       end
 
       it "adds '--profile wip' when the mode is 'wip'" do
@@ -71,13 +71,13 @@ expected: #{expected_output.inspect}
       end
 
       it "ignores most other arguments and just hands them off to Cucumber" do
-        expect_command_line 'core --wibble',    "#{cmd_base} --tags @core --wibble"
-        expect_command_line 'core ok --wibble', "#{cmd_base} --tags @core --wibble"
+        expect_command_line 'core --wibble',    "#{cmd_base} --tags @core --tags @core_ok --wibble"
+        expect_command_line 'core ok --wibble', "#{cmd_base} --tags @core --tags @core_ok --wibble"
       end
 
       it "doesn't override a profile if the user explicitly specifies one (using either -p or --profile)" do
-        expect_command_line 'core --dingbat --profile emperor_penguin',     "#{cmd_base} --tags @core --profile emperor_penguin --dingbat"
-        expect_command_line 'core --dingbat -p emperor_penguin',            "#{cmd_base} --tags @core --profile emperor_penguin --dingbat"
+        expect_command_line 'core --dingbat --profile emperor_penguin',     "#{cmd_base} --tags @core --tags @core_ok --profile emperor_penguin --dingbat"
+        expect_command_line 'core --dingbat -p emperor_penguin',            "#{cmd_base} --tags @core --tags @core_ok --profile emperor_penguin --dingbat"
       end
 
       it "doesn't override a user-specified profile, even in wip mode when it would normally use the wip profile" do
