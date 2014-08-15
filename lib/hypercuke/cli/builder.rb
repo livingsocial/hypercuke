@@ -39,7 +39,7 @@ module Hypercuke
         mode  = [options[:mode].to_s.strip, 'ok'].reject {|s| s =~ /^\s*$/ }.first
 
         if 'ok' == mode
-          "--tags @#{layer} --tags @#{layer}_ok"
+          "--tags @#{layer},@#{layer}_ok"
         else
           "--tags @#{layer}_#{mode}"
         end
